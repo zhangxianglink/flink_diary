@@ -21,8 +21,10 @@ public class KafkaSourceTest {
         Properties properties = new Properties();
         properties.setProperty("bootstrap.servers","124.222.222.46:9092");
         properties.setProperty("group.id","win_test");
+        properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        properties.put("auto.offset.reset","latest");
         final FlinkKafkaConsumer<String> kafkaConsumer = new FlinkKafkaConsumer<>("flink_test1", new SimpleStringSchema(), properties);
-        kafkaConsumer.setStartFromEarliest();
         final DataStreamSource<String> stream
                 = env.addSource(kafkaConsumer);
 
