@@ -1,12 +1,13 @@
 package dsapi.pojo;
 
+import org.apache.flink.streaming.api.functions.source.ParallelSourceFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 /**
  * @author xiangzhang
  * @since 2022-06-21 14:27
  */
-public class MySourceFunction implements SourceFunction<Event> {
+public class MySourceFunction2 implements ParallelSourceFunction<Event> {
 
     private  boolean running = true;
 
