@@ -31,7 +31,8 @@ public class MapTest {
             public boolean filter(Event value) throws Exception {
                 return value.getUrl().equals("./home");
             }
-        });
+        }).print();
+
         env.execute();
 
     }
