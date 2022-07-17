@@ -31,7 +31,6 @@ public class PartitionTest {
        ds.rebalance().print().setParallelism(4);
 
         // 重新分组
-
       environment.addSource(new RichParallelSourceFunction<Integer>() {
             @Override
             public void run(SourceContext<Integer> sourceContext) throws Exception {
