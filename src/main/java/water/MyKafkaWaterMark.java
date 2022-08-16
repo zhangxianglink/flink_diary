@@ -25,6 +25,8 @@ public class MyKafkaWaterMark {
 
         FlinkKafkaConsumer<String> kafkaConsumer = new FlinkKafkaConsumer<>("flink_test1", new SimpleStringSchema(), properties);
         kafkaConsumer.assignTimestampsAndWatermarks(WatermarkStrategy.forBoundedOutOfOrderness(Duration.ofSeconds(2L)));
+
+
         DataStream<String> stream = env.addSource(kafkaConsumer);
         stream.print();
         env.execute();
