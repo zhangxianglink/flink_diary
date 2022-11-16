@@ -27,13 +27,13 @@ public class RichMapFunctionTest {
 
         @Override
         public void open(Configuration parameters) throws Exception {
-            super.open(parameters);
+           
             System.out.println("open this task: " + getRuntimeContext().getIndexOfThisSubtask() + " start ---------");
         }
 
         @Override
         public void close() throws Exception {
-            super.close();
+
             System.out.println("close this task: "+ getRuntimeContext().getIndexOfThisSubtask() + " end ---------");
         }
 

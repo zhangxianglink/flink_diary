@@ -57,6 +57,7 @@ public class MyProcessWindowTest {
 
     public static class MyProcessWindowFunction extends ProcessWindowFunction<Event, String,String, TimeWindow> {
 
+        // context 上下文对象 时间信息/窗口信息
         @Override
         public void process(String aBoolean, Context context, Iterable<Event> elements, Collector<String> out) throws Exception {
             Long sum = 0L;
