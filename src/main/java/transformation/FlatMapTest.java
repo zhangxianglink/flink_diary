@@ -1,7 +1,9 @@
 package transformation;
 
+import dsapi.pojo.CallName;
 import dsapi.pojo.Event;
 import org.apache.flink.api.common.functions.FilterFunction;
+import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -30,11 +32,22 @@ public class FlatMapTest {
                 new Event("ddd", "./data", System.currentTimeMillis())
         );
 
-        ds.flatMap(((Event value, Collector<List<String>> collector) -> {
+        ds.flatMap(new FlatMapFunction<Event, List<String> >() {
+            @Override
+            public void flatMap(Event value, Collector<List<String>> out) throws Exception {
+                List<String> split = Arrays.asList(value.user.split(""));
+                out.collect(split);
+            }
+        }).print();
+
+        ds.flatMap((Event value, Collector<List<String>> collector) -> {
             List<String> split = Arrays.asList(value.user.split(""));
             collector.collect(split);
-        })).returns(new TypeHint<List<String>>() {}).print();
+        }).returns(new TypeHint<List<String>>() {}).print();
 
+        ds.flatMap((Event e,Collector<CallName> c) -> {
+           c.collect( new CallName(e.getUser()) );
+        }).returns(TypeInformation.of(CallName.class)).print();
         env.execute();
 
     }

@@ -17,7 +17,7 @@
 水位线基本属性: 
 
 	1. 单调递增, 为了确保任务中的事件时间时钟正确前进
-	2. 与时间戳保持联系. 时间戳T, 代表接下来的时间戳一定都大于T.
+	2. 与时间戳保持联系. 当水位线为T, 代表接下来的时间戳一定都大于T.
 
 算子对水位线的处理方式:
 
@@ -46,11 +46,49 @@
 
 ```
 1.数据源完成
-2.周期分配期,名为assignerWithperiodicWatermarks用户自定义函数,从纪录里面提取时间戳,周期性响应水位线查询.
-3.定点分配器,AssignerWithPeriodicWatermarks同样支持从纪录里面提取时间戳.但不会是每一条记录.
+2.周期分配期,AssignerWithPeriodicWatermarks用户自定义函数,从纪录里面提取时间戳,周期性响应水位线查询.
+3.定点分配器,AssignerWithPunctuatedWatermarks同样支持从纪录里面提取时间戳.但不会是每一条记录.
+4.以上分配器都已经过期了
 ```
 
+![Generating Watermarks with awareness for Kafka-partitions](https://nightlies.apache.org/flink/flink-docs-release-1.15/fig/parallel_kafka_watermarks.svg)
 
+### 关于自定义代码实现
+
+```java
+1.15 版本 :  assignTimestampsAndWatermarks(WatermarkStrategy<T> watermarkStrategy) 
+WatermarkStrategy 接口
+  createTimestampAssigner 时间戳(从数据提取字段的函数)
+  	TimestampAssigner 接口
+  createWatermarkGenerator watermark生成器
+  	WatermarkGenerator 接口
+      onEvent 每个事件数据调用一次
+      onPeriodicEmit	周期性调用
+    源码: 
+      @Override
+      public void onEvent(T event, long eventTimestamp, WatermarkOutput output) {
+          maxTimestamp = Math.max(maxTimestamp, eventTimestamp);
+      }
+
+      @Override
+      public void onPeriodicEmit(WatermarkOutput output) {
+          output.emitWatermark(new Watermark(maxTimestamp - outOfOrdernessMillis - 1));
+      }
+```
+
+### flink 内置watermark生成器
+
+```java
+单调递增时间戳分配器
+      static <T> WatermarkStrategy<T> forMonotonousTimestamps() {
+        return (ctx) -> new AscendingTimestampsWatermarks<>();
+    }
+存在最大固定延迟的时间戳分配器
+      static <T> WatermarkStrategy<T> forBoundedOutOfOrderness(Duration maxOutOfOrderness) {
+        return (ctx) -> new BoundedOutOfOrdernessWatermarks<>(maxOutOfOrderness);
+    }
+
+```
 
 
 
